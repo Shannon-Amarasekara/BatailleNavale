@@ -1,3 +1,4 @@
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -6,17 +7,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PlayerAttackService {
 
-    BoardDisplayService boardDisplayService = new BoardDisplayService();
-    BoatDetectionService boatDetectionService = new BoatDetectionService();
-    UserInputValidationService userInputValidationService = new UserInputValidationService();
+    private BoardDisplayService boardDisplayService = new BoardDisplayService();
+    private UserInputValidationService userInputValidationService = new UserInputValidationService();
 
     public void attackTheEnemyBoard(Board board, List<String> positionsAlreadyAttacked) {
         Scanner scanner = new Scanner(System.in);
         List<String> columnsAToJ = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J");
-        displayPositionsPreviouslyAttackedByPlayer(positionsAlreadyAttacked);
+        if (positionsAlreadyAttacked.size() > 0) {
+            displayPreviousPlayerAttacks(positionsAlreadyAttacked);
+        }
 
         while (true) {
-
             int column = playerChoosesColumnToAttack(board, columnsAToJ, scanner);
             int row = playerChoosesRowToAttack(board, scanner);
             String columnToAttack = columnsAToJ.get(column);
@@ -28,8 +29,8 @@ public class PlayerAttackService {
                 positionsAlreadyAttacked.add(columnToAttack + row);
                 System.out.println("You have attacked the enemy board position " + columnToAttack + row);
 
-                if (boatDetectionService.aBoatIsInThisPosition(board, (row - 1), column)) {
-                    boatDetectionService.setValueOfSquareToSunkBoat(board, row, column);
+                if (board.aBoatIsInThisPosition((row - 1), column)) {
+                    board.setValueOfSquareToSunkBoat(board, row - 1, column);
                     System.out.println("Well done! You have sunk an enemy boat.");
                     break;
 
@@ -44,7 +45,25 @@ public class PlayerAttackService {
         System.out.println("Here is the enemy board.");
     }
 
-    public void displayPositionsPreviouslyAttackedByPlayer(List<String> positionsAlreadyAttacked) {
+    public void displayPreviousPlayerAttacks(List<String> positionsAlreadyAttacked) {
+        System.out.println("You previously attacked the following positions: ");
+        List<List<String>> previousAttacksInOrder = createListOfPreviousPlayerAttacks(positionsAlreadyAttacked);
+
+        for (List<String> columnList : previousAttacksInOrder) {
+            if (!columnList.isEmpty()) {
+                Collections.sort(columnList);
+                for (String position : columnList) {
+                    if (position.endsWith("0")) {
+                        columnList.remove(position);
+                        columnList.add(columnList.size(), position);
+                    }
+                }
+                System.out.println(columnList);
+            }
+        }
+    }
+
+    public List<List<String>> createListOfPreviousPlayerAttacks(List<String> positionsAlreadyAttacked) {
         HashMap<String, Integer> columnsAndRows = new HashMap<>();
         columnsAndRows.put("A", 0);
         columnsAndRows.put("B", 1);
@@ -57,32 +76,17 @@ public class PlayerAttackService {
         columnsAndRows.put("I", 8);
         columnsAndRows.put("J", 9);
 
-        if (positionsAlreadyAttacked.size() > 0) {
-            List<List<String>> positionsInOrder = new CopyOnWriteArrayList<>();
-            for (int i = 0; i < 10; i++) {
-                positionsInOrder.add(new CopyOnWriteArrayList<>());
-            }
-
-            for (String position : positionsAlreadyAttacked) {
-                String columnOfPosition = String.valueOf(position.charAt(0));
-                int keyOfColumn = columnsAndRows.get(columnOfPosition);
-                positionsInOrder.get(keyOfColumn).add(position);
-            }
-
-            System.out.println("You previously attacked the following positions: ");
-            for (List<String> columnList : positionsInOrder) {
-                if (!columnList.isEmpty()) {
-                    Collections.sort(columnList);
-                    for (String position : columnList) {
-                        if (position.endsWith("0")) {
-                            columnList.remove(position);
-                            columnList.add(columnList.size(), position);
-                        }
-                    }
-                    System.out.println(columnList);
-                }
-            }
+        List<List<String>> positionsInOrder = new CopyOnWriteArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            positionsInOrder.add(new CopyOnWriteArrayList<>());
         }
+
+        for (String position : positionsAlreadyAttacked) {
+            String columnOfPosition = String.valueOf(position.charAt(0));
+            int keyOfColumn = columnsAndRows.get(columnOfPosition);
+            positionsInOrder.get(keyOfColumn).add(position);
+        }
+        return positionsInOrder;
     }
 
     public int playerChoosesColumnToAttack(Board board, List<String> columnsAtoJ, Scanner scanner) {

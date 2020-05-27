@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
 
+//Domain
+
 class Board {
     private List<List<Square>> squares;
 
@@ -51,5 +53,33 @@ class Board {
     public void placeABoatOnTheBoard(int column, int row) {
         Square squareBoat = squares.get(row - 1).get(column);
         squareBoat.setValueOfSquare(Square.ValueOfSquare.BOAT);
+    }
+
+    public boolean aBoatIsInThisPosition(int row, int column) {
+        return getValueOfSquare(row, column).equals(Square.ValueOfSquare.BOAT);
+    }
+
+    public Square.ValueOfSquare getValueOfSquare(int row, int column) {
+        return squares.get(row).get(column).getValueOfSquare();
+    }
+
+    public boolean boardContainsNoBoats() {
+        for (int i = 0; i < squares.size(); i++) {
+            for (int j = 0; j < squares.get(i).size(); j++) {
+
+                Square square = squares.get(i).get(j);
+                String valueOfSquare = square.getValueOfSquare().getRepresentationOnTheBoard();
+                String value = Square.ValueOfSquare.BOAT.getRepresentationOnTheBoard();
+
+                if (valueOfSquare.equals(value)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void setValueOfSquareToSunkBoat(Board board, int row, int column) {
+        board.getSquares().get(row).get(column).setValueOfSquare(Square.ValueOfSquare.SUNK_BOAT);
     }
 }

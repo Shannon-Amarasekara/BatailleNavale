@@ -3,9 +3,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BoardAttackService {
 
-    PlayerAttackService playerAttackService = new PlayerAttackService();
-    EnemyAttackService enemyAttackService = new EnemyAttackService();
-    BoatDetectionService boatDetectionService = new BoatDetectionService();
+    private PlayerAttackService playerAttackService = new PlayerAttackService();
+    private EnemyAttackService enemyAttackService = new EnemyAttackService();
 
     public void playerAndEnemyAttackEachOther(Board playerBoard, Board enemyBoard) {
         ArrayList<Integer> positionsAlreadyAttackedByEnemy = createListOfBoardPositions();
@@ -13,12 +12,12 @@ public class BoardAttackService {
 
         while (true) {
             playerAttackService.attackTheEnemyBoard(enemyBoard, positionsAlreadyAttackedByPlayer);
-            if (boatDetectionService.boardContainsNoBoats(enemyBoard)) {
+            if (enemyBoard.boardContainsNoBoats()) {
                 playerWins();
             }
 
             enemyAttackService.enemyAttacksThePlayerBoard(playerBoard, positionsAlreadyAttackedByEnemy);
-            if (boatDetectionService.boardContainsNoBoats(playerBoard)) {
+            if (playerBoard.boardContainsNoBoats()) {
                 playerLoses();
             }
         }

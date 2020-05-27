@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -5,9 +6,9 @@ import java.util.Scanner;
 
 public class BoatPlacementService {
 
-    Scanner scanner = new Scanner(System.in);
-    BoardDisplayService boardDisplayService = new BoardDisplayService();
-    UserInputValidationService userInputValidationService = new UserInputValidationService();
+    private Scanner scanner = new Scanner(System.in);
+    private BoardDisplayService boardDisplayService = new BoardDisplayService();
+    private UserInputValidationService userInputValidationService = new UserInputValidationService();
 
     public int placeOneToThreeBoats(Board board) {
         ArrayList<String> listOfBoatsPlaced = new ArrayList<>();
@@ -32,7 +33,6 @@ public class BoatPlacementService {
                 break;
             }
         }
-
         boardDisplayService.displayBoard(board);
         System.out.println("Here is your board");
         return listOfBoatsPlaced.size();
@@ -41,27 +41,19 @@ public class BoatPlacementService {
     private void placeBoat(Board board, ArrayList<String> listOfBoatsPlaced) {
         Scanner scanner = new Scanner(System.in);
         List<String> columnsAToJ = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J");
-
         int column = playerChoosesColumnToPlaceBoat(board, columnsAToJ, scanner);
-
         int row = playerChoosesRowToPlaceBoat(board, scanner);
+        String position = columnsAToJ.get(column) + row;
 
-        if (!aBoatIsInThisPosition(board, row, column)) {
+        if (!listOfBoatsPlaced.contains(position)) {
             board.placeABoatOnTheBoard(column, row);
-            String position = columnsAToJ.get(column) + row;
-
-            if (!listOfBoatsPlaced.contains(position)) {
-                board.placeABoatOnTheBoard(column, row);
-                System.out.println("You have placed your boat in the position " + position + ".");
-                listOfBoatsPlaced.add(position);
-
-            } else {
-                System.out.println("You already placed a boat in the position " + position);
-            }
+            listOfBoatsPlaced.add(position);
+        } else {
+            System.out.println("You already placed a boat in this position.");
         }
     }
 
-    public int playerChoosesColumnToPlaceBoat(Board board, List<String> columnsAtoJ, Scanner scanner){
+    public int playerChoosesColumnToPlaceBoat(Board board, List<String> columnsAtoJ, Scanner scanner) {
         int column = -1;
         while (column == -1) {
             System.out.println("Choose which column you want to place your boat. (A - J)");
@@ -70,20 +62,13 @@ public class BoatPlacementService {
         return column;
     }
 
-    public int playerChoosesRowToPlaceBoat(Board board, Scanner scanner){
+    public int playerChoosesRowToPlaceBoat(Board board, Scanner scanner) {
         int row = -1;
         while (row == -1) {
-            System.out.println("Choose a row for your first boat. (1-10)");
+            System.out.println("Choose which row you want to place your boat. (1-10)");
             row = userInputValidationService.validatePlayerRowInput(scanner, board);
         }
         return row;
     }
 
-    private boolean aBoatIsInThisPosition(Board board, int row, int column) {
-        return getValueOfSquare(board, row, column).equals(Square.ValueOfSquare.BOAT);
-    }
-
-    private Square.ValueOfSquare getValueOfSquare(Board board, int row, int column) {
-        return board.getSquares().get(row - 1).get(column).getValueOfSquare();
-    }
 }
